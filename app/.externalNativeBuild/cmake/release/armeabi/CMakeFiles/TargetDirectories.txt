@@ -1,0 +1,4 @@
+D:/mobao/tempSource/VxgFFmpeg/app/.externalNativeBuild/cmake/release/armeabi/CMakeFiles/mbff.dir
+D:/mobao/tempSource/VxgFFmpeg/app/.externalNativeBuild/cmake/release/armeabi/CMakeFiles/native-lib.dir
+D:/mobao/tempSource/VxgFFmpeg/app/.externalNativeBuild/cmake/release/armeabi/CMakeFiles/edit_cache.dir
+D:/mobao/tempSource/VxgFFmpeg/app/.externalNativeBuild/cmake/release/armeabi/CMakeFiles/rebuild_cache.dir
