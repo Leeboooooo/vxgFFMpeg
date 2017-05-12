@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
             String srcVideo = APP_DIR + "src.mp4";
             String bgMusicFile = APP_DIR + "test.mp3";
             String destPath = APP_DIR + "dest.mp4";
-            int ret = FFMpegUtils.getInstance().merge_video(srcVideo,bgMusicFile,destPath);
+            int ret = FFMpegUtils.getInstance().merge(srcVideo,bgMusicFile,destPath,APP_DIR);
             if (1 == ret) {
                 handler.obtainMessage(WHAT_SUCCESS).sendToTarget();
             }

@@ -18,5 +18,8 @@ public class FFMpegUtils {
         System.loadLibrary("mbff");
     }
 
-    public native int merge_video(String videoPath,String voicePath,String destPath);
+    public native int merge(String srcVideo,
+                            String srcBGM,
+                            String dstVideo,
+                            String dstBGMPath);
 }

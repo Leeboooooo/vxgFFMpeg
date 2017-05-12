@@ -25,37 +25,28 @@ int run_cmd(char * str_cmd){
  * @param argv
  * @return
  */
-int merge_voice(int argc,char *argv[]){
-    if(argc!=4) errx(1,"usage: %s videoFile voiceFile destFile\n",argv[0]);
-    char *cmd_crop_mp3 = (char *) malloc(32);
-    sprintf(cmd_crop_mp3," -i %s -ss 00:00:00 -to 00:00:09 -c copy %s",argv[2],__bg_9s);
-    char *str_cmd = argv[0];
-    str_cmd = strcpy(str_cmd,cmd_crop_mp3);
-    return run_cmd(str_cmd);
+int merge_voice(const char *src_video,const char *src_bgm,const char *dst_video,const char *dst_bgm_path){
+    char *cmd_add_mp3 = (char *) malloc(128);
+    sprintf(cmd_add_mp3,"ffmpeg -i %s -ss 00:00:00 -to 00:00:09 -c copy %s%s",dst_video,dst_bgm_path,__bg_9s);
+    int ret = run_cmd(cmd_add_mp3);
+    free(cmd_add_mp3);
+    return ret;
 }
 
 //extern "C"
 JNIEXPORT jint JNICALL
-Java__com_example_vxg_vxgffmpeg_FFMpegUtils_merge_video(
+Java_com_example_vxg_vxgffmpeg_FFMpegUtils_merge(
         JNIEnv *env,
         jclass cls,
-        jstring videoFile,
-        jstring voiceFile,
-        jstring destFile){
-    int argc = 4;
-    char * argv[argc] ;
-    for (int i = 0; i < argc; ++i) {
-        argv[i] = (char*)malloc(sizeof(char)*64);
-    }
+        jstring srcVideo,
+        jstring srcBGM,
+        jstring dstVideo,
+        jstring dstBGMPath){
 
-    const char *str_video_file = (const char *)(*env)->GetStringUTFChars(env,videoFile,0);
-    const char *str_bg_file = (const char *)(*env)->GetStringUTFChars(env,voiceFile,0);
-    const char *str_dest = (const char *)(*env)->GetStringUTFChars(env,destFile,0);
+    const char *str_video_file = (const char *)(*env)->GetStringUTFChars(env,srcVideo,0);
+    const char *str_bg_file = (const char *)(*env)->GetStringUTFChars(env,srcBGM,0);
+    const char *str_dest = (const char *)(*env)->GetStringUTFChars(env,dstVideo,0);
+    const char *str_dst_mbg_path = (const char *)(*env)->GetStringUTFChars(env,dstBGMPath,0);
 
-    strncpy(argv[0],(char *) "ffmpeg", sizeof(strlen("ffmpeg")));
-    strncpy(argv[1],str_video_file, sizeof(strlen(str_video_file)));
-    strncpy(argv[1],str_bg_file, sizeof(strlen(str_bg_file)));
-    strncpy(argv[1],str_dest, sizeof(strlen(str_dest)));
-
-    return merge_voice(argc,argv);
+    return merge_voice(str_video_file,str_bg_file,str_dest,str_dst_mbg_path);
 }
