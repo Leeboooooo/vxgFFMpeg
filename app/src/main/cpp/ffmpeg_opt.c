@@ -19,26 +19,13 @@
  */
 
 #include <stdint.h>
-#include "../../include/comm/ffmpeg.h"
-#include "../../include/comm/cmdutils.h"
-
-#include "../../include/libavformat/avformat.h"
-
-#include "../../include/libavcodec/avcodec.h"
-
-#include "../../include/libavfilter/avfilter.h"
-
-#include "../../include/libavutil/avassert.h"
-#include "../../include/libavutil/avstring.h"
-#include "../../include/libavutil/avutil.h"
-#include "../../include/libavutil/channel_layout.h"
-#include "../../include/libavutil/intreadwrite.h"
-#include "../../include/libavutil/fifo.h"
-#include "../../include/libavutil/mathematics.h"
-#include "../../include/libavutil/opt.h"
-#include "../../include/libavutil/parseutils.h"
-#include "../../include/libavutil/pixdesc.h"
-#include "../../include/libavutil/pixfmt.h"
+#include <comm/ffmpeg.h>
+#include <libavutil/opt.h>
+#include <libavutil/avstring.h>
+#include <libavutil/avassert.h>
+#include <libavutil/intreadwrite.h>
+#include <libavutil/parseutils.h>
+#include <libavutil/pixdesc.h>
 
 #define DEFAULT_PASS_LOGFILENAME_PREFIX "ffmpeg2pass"
 
@@ -1946,10 +1933,11 @@ static int read_ffserver_streams(OptionsContext *o, AVFormatContext *s, const ch
             av_dict_free(&opts);
         }
 
-        if (st->codecpar->codec_type == AVMEDIA_TYPE_AUDIO && !ost->stream_copy)
+        /*不知道fmt，暂时注释*/
+/*        if (st->codecpar->codec_type == AVMEDIA_TYPE_AUDIO && !ost->stream_copy)
             choose_sample_fmt(st, codec);
         else if (st->codecpar->codec_type == AVMEDIA_TYPE_VIDEO && !ost->stream_copy)
-            choose_pixel_fmt(st, st->codec, codec, st->codecpar->format);
+            choose_pixel_fmt(st, st->codec, codec, st->codecpar->format);*/
         avcodec_copy_context(ost->enc_ctx, st->codec);
         if (enc_config)
             av_dict_parse_string(&ost->encoder_opts, enc_config, "=", ",", 0);
@@ -2004,12 +1992,12 @@ static void init_output_filter(OutputFilter *ofilter, OptionsContext *o,
 static int init_complex_filters(void)
 {
     int i, ret = 0;
-
-    for (i = 0; i < nb_filtergraphs; i++) {
-        ret = init_complex_filtergraph(filtergraphs[i]);
-        if (ret < 0)
-            return ret;
-    }
+/* arm_config.h ENABLE_FILTERS is 0*/
+//    for (i = 0; i < nb_filtergraphs; i++) {
+//        ret = init_complex_filtergraph(filtergraphs[i]);
+//        if (ret < 0)
+//            return ret;
+//    }
     return 0;
 }
 
@@ -2390,7 +2378,9 @@ loop_end:
             InputStream *ist = input_streams[ost->source_index];
             ist->decoding_needed |= DECODING_FOR_OST;
 
-            if (ost->st->codecpar->codec_type == AVMEDIA_TYPE_VIDEO ||
+
+            /*因为ffmpeg.so不支持滤镜，所以这一步判断暂时注销*/
+/*            if (ost->st->codecpar->codec_type == AVMEDIA_TYPE_VIDEO ||
                 ost->st->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
                 err = init_simple_filtergraph(ist, ost);
                 if (err < 0) {
@@ -2400,7 +2390,7 @@ loop_end:
                            nb_output_files - 1, ost->st->index);
                     exit_program(1);
                 }
-            }
+            }*/
         }
 
         /* set the filter output constraints */
@@ -3247,10 +3237,12 @@ int ffmpeg_parse_options(int argc, char **argv)
     }
 
     /* create the complex filtergraphs */
-    ret = init_complex_filters();
-    if (ret < 0) {
-        av_log(NULL, AV_LOG_FATAL, "Error initializing complex filters.\n");
-        goto fail;
+    if(ENABLE_FILTERS) {
+        ret = init_complex_filters();
+        if (ret < 0) {
+            av_log(NULL, AV_LOG_FATAL, "Error initializing complex filters.\n");
+            goto fail;
+        }
     }
 
     /* open output files */

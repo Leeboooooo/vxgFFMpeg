@@ -17,7 +17,7 @@ android {
                 // Clang是一个C语言、Objective-C、C++语言的轻量级编译器。
 //                arguments "-DANDROID_TOOLCHAIN=clang"
                 cppFlags "-frtti -fexceptions"
-                cppFlags "-std=c++11"
+//                cppFlags "-std=c++11"
             }
         }
 

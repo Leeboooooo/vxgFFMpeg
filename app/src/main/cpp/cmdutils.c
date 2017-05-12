@@ -24,35 +24,35 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <math.h>
-#include "../../include/comm/cmdutils.h"
+#include <comm/cmdutils.h>
 
 /* Include only the enabled headers since some compilers (namely, Sun
    Studio) will not omit unused inline functions and create undefined
    references to libraries that are not being built. */
 
-//#include "compat/va_copy.h"
-#include "../../include/libavformat/avformat.h"
-#include "../../include/libavfilter/avfilter.h"
-//#include "libavdevice/avdevice.h"
-//#include "libavresample/avresample.h"
-#include "../../include/libswscale/swscale.h"
-#include "../../include/libswresample/swresample.h"
-//#include "libpostproc/postprocess.h"
-#include "../../include/libavutil/avassert.h"
-#include "../../include/libavutil/avstring.h"
-#include "../../include/libavutil/bprint.h"
-#include "../../include/libavutil/display.h"
-#include "../../include/libavutil/mathematics.h"
-#include "../../include/libavutil/imgutils.h"
-//#include "libavutil/libm.h"
-#include "../../include/libavutil/parseutils.h"
-#include "../../include/libavutil/pixdesc.h"
-#include "../../include/libavutil/eval.h"
-#include "../../include/libavutil/dict.h"
-#include "../../include/libavutil/opt.h"
-#include "../../include/libavutil/cpu.h"
-#include "../../include/libavutil/ffversion.h"
-#include "../../include/libavutil/version.h"
+//#include "compat/va_copy.h>
+#include <libavformat/avformat.h>
+#include <libavfilter/avfilter.h>
+//#include "libavdevice/avdevice.h>
+//#include "libavresample/avresample.h>
+#include <libswscale/swscale.h>
+#include <libswresample/swresample.h>
+//#include "libpostproc/postprocess.h>
+#include <libavutil/avassert.h>
+#include <libavutil/avstring.h>
+#include <libavutil/bprint.h>
+#include <libavutil/display.h>
+#include <libavutil/mathematics.h>
+#include <libavutil/imgutils.h>
+//#include "libavutil/libm.h>
+#include <libavutil/parseutils.h>
+#include <libavutil/pixdesc.h>
+#include <libavutil/eval.h>
+#include <libavutil/dict.h>
+#include <libavutil/opt.h>
+#include <libavutil/cpu.h>
+#include <libavutil/ffversion.h>
+#include <libavutil/version.h>
 #if HAVE_SYS_RESOURCE_H
 #include <sys/time.h>
 #include <sys/resource.h>

@@ -12,7 +12,7 @@ cmake_minimum_required(VERSION 3.4.1)
 project(FFMPEG)
 
 #ffmpeg 路径
-set(FFMPEG_SRC src/main/cpp/mb_ffmpeg)
+set(FFMPEG_SRC src/main/cpp)
 
 #配置加载native依赖
 include_directories(${FFMPEG_SRC}/include/)
@@ -21,10 +21,10 @@ include_directories(${FFMPEG_SRC}/include/)
 add_library( 
     mbff 
     SHARED
-    ${FFMPEG_SRC}/src/cmdutils.c
-    ${FFMPEG_SRC}/src/ffmpeg_opt.c
-    ${FFMPEG_SRC}/src/ffmpeg.c
-    ${FFMPEG_SRC}/src/mb_ff.cpp)
+    ${FFMPEG_SRC}/cmdutils.c
+    ${FFMPEG_SRC}/ffmpeg_opt.c
+    ${FFMPEG_SRC}/ffmpeg.c
+    ${FFMPEG_SRC}/mb_ff.c)
 
 ##使用ffmpeg.so
 #只需导入第三方.so库，不用构建
@@ -37,4 +37,4 @@ set_target_properties(
     ${CMAKE_SOURCE_DIR}/libs/${ANDROID_ABI}/libffmpeg.so)
 
 #已经存在的.so库无需使用target_link_libraries
-#target_link_libraries(mbff ${ffmpeg})
+target_link_libraries(mbff ffmpeg)

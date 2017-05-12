@@ -6,10 +6,11 @@
 #include <err.h>
 #include <string.h>
 #include <stdio.h>
+#include <comm/ffmpeg.h>
 
 #define __bg_9s ("bg_9s.mp3")
 
-int ffmpeg_cmd(int argc, char **argv);
+//int ffmpeg_cmd(int argc, char **argv);
 
 int run_cmd(char * str_cmd){
     int argc = 1;
@@ -33,7 +34,7 @@ int merge_voice(int argc,char *argv[]){
     return run_cmd(str_cmd);
 }
 
-extern "C"
+//extern "C"
 JNIEXPORT jint JNICALL
 Java__com_example_vxg_vxgffmpeg_FFMpegUtils_merge_video(
         JNIEnv *env,
@@ -42,10 +43,19 @@ Java__com_example_vxg_vxgffmpeg_FFMpegUtils_merge_video(
         jstring voiceFile,
         jstring destFile){
     int argc = 4;
-    char * argv[argc];
-    argv[0] = (char *) "ffmpeg";
-    argv[1] = (char*) (env->GetStringUTFChars(videoFile,0));
-    argv[2] = (char*) (env->GetStringUTFChars(voiceFile, 0));
-    argv[3] = (char*) (env->GetStringUTFChars(destFile, 0));
+    char * argv[argc] ;
+    for (int i = 0; i < argc; ++i) {
+        argv[i] = (char*)malloc(sizeof(char)*64);
+    }
+
+    const char *str_video_file = (const char *)(*env)->GetStringUTFChars(env,videoFile,0);
+    const char *str_bg_file = (const char *)(*env)->GetStringUTFChars(env,voiceFile,0);
+    const char *str_dest = (const char *)(*env)->GetStringUTFChars(env,destFile,0);
+
+    strncpy(argv[0],(char *) "ffmpeg", sizeof(strlen("ffmpeg")));
+    strncpy(argv[1],str_video_file, sizeof(strlen(str_video_file)));
+    strncpy(argv[1],str_bg_file, sizeof(strlen(str_bg_file)));
+    strncpy(argv[1],str_dest, sizeof(strlen(str_dest)));
+
     return merge_voice(argc,argv);
 }

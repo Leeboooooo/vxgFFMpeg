@@ -23,7 +23,7 @@
  * multimedia converter based on the FFmpeg libraries
  */
 
-#include "../../include/comm/arm_config.h"
+#include <comm/arm_config.h>
 #include <ctype.h>
 #include <string.h>
 #include <math.h>
@@ -40,29 +40,29 @@
 #include <unistd.h>
 #endif
 
-#include "../../include/libavformat/avformat.h"
-#include "../../include/libswresample/swresample.h"
-#include "../../include/libavutil/opt.h"
-#include "../../include/libavutil/channel_layout.h"
-#include "../../include/libavutil/parseutils.h"
-#include "../../include/libavutil/samplefmt.h"
-#include "../../include/libavutil/fifo.h"
-#include "../../include/libavutil/hwcontext.h"
-#include "../../include/libavutil/intreadwrite.h"
-#include "../../include/libavutil/dict.h"
-#include "../../include/libavutil/display.h"
-#include "../../include/libavutil/mathematics.h"
-#include "../../include/libavutil/pixdesc.h"
-#include "../../include/libavutil/avstring.h"
-#include "../../include/libavutil/imgutils.h"
-#include "../../include/libavutil/timestamp.h"
-#include "../../include/libavutil/bprint.h"
-#include "../../include/libavutil/time.h"
-#include "../../include/libavutil/threadmessage.h"
+#include <libavformat/avformat.h>
+#include <libswresample/swresample.h>
+#include <libavutil/opt.h>
+#include <libavutil/channel_layout.h>
+#include <libavutil/parseutils.h>
+#include <libavutil/samplefmt.h>
+#include <libavutil/fifo.h>
+#include <libavutil/hwcontext.h>
+#include <libavutil/intreadwrite.h>
+#include <libavutil/dict.h>
+#include <libavutil/display.h>
+#include <libavutil/mathematics.h>
+#include <libavutil/pixdesc.h>
+#include <libavutil/avstring.h>
+#include <libavutil/imgutils.h>
+#include <libavutil/timestamp.h>
+#include <libavutil/bprint.h>
+#include <libavutil/time.h>
+#include <libavutil/threadmessage.h>
 
-# include "../../include/libavfilter/avfilter.h"
-# include "../../include/libavfilter/buffersrc.h"
-# include "../../include/libavfilter/buffersink.h"
+# include <libavfilter/avfilter.h>
+# include <libavfilter/buffersrc.h>
+# include <libavfilter/buffersink.h>
 
 #if HAVE_SYS_RESOURCE_H
 #include <sys/time.h>
@@ -99,10 +99,12 @@
 
 #include <time.h>
 
-#include "../../include/comm/ffmpeg.h"
-#include "../../include/comm/cmdutils.h"
+#include <comm/ffmpeg.h>
+#include <comm/cmdutils.h>
 
-#include "../../include/libavutil/avassert.h"
+#include <libavutil/avassert.h>
+#include <libavcodec/mathops.h>
+#include <libavutil/internal.h>
 
 const char program_name[] = "ffmpeg";
 const int program_birth_year = 2000;
@@ -1873,11 +1875,11 @@ static void flush_encoders(void)
                 if (!ifilter_has_all_input_formats(fg))
                     continue;
 
-                ret = configure_filtergraph(fg);
+/*                ret = configure_filtergraph(fg);
                 if (ret < 0) {
                     av_log(NULL, AV_LOG_ERROR, "Error configuring filter graph\n");
                     exit_program(1);
-                }
+                }*/
 
                 finish_output_stream(ost);
             }
@@ -2164,11 +2166,11 @@ static int ifilter_send_frame(InputFilter *ifilter, AVFrame *frame)
         break;
     }
 
-    if (need_reinit) {
+/*    if (need_reinit) {
         ret = ifilter_parameters_from_frame(ifilter, frame);
         if (ret < 0)
             return ret;
-    }
+    }*/
 
     /* (re)init the graph if possible, otherwise buffer the frame and return */
     if (need_reinit || !fg->graph) {
@@ -2200,11 +2202,11 @@ static int ifilter_send_frame(InputFilter *ifilter, AVFrame *frame)
             return ret;
         }
 
-        ret = configure_filtergraph(fg);
+/*        ret = configure_filtergraph(fg);
         if (ret < 0) {
             av_log(NULL, AV_LOG_ERROR, "Error reinitializing filters!\n");
             return ret;
-        }
+        }*/
     }
 
     ret = av_buffersrc_add_frame_flags(ifilter->filter, frame, AV_BUFFERSRC_FLAG_PUSH);
@@ -3661,7 +3663,8 @@ static int transcode_init(void)
  dump_format:
     /* dump the stream mapping */
     av_log(NULL, AV_LOG_INFO, "Stream mapping:\n");
-    for (i = 0; i < nb_input_streams; i++) {
+
+    /*for (i = 0; i < nb_input_streams; i++) {
         ist = input_streams[i];
 
         for (j = 0; j < ist->nb_filters; j++) {
@@ -3674,7 +3677,7 @@ static int transcode_init(void)
                 av_log(NULL, AV_LOG_INFO, "\n");
             }
         }
-    }
+    }*/
 
     for (i = 0; i < nb_output_streams; i++) {
         ost = output_streams[i];
@@ -3686,8 +3689,8 @@ static int transcode_init(void)
             continue;
         }
 
-        if (ost->filter && !filtergraph_is_simple(ost->filter->graph)) {
-            /* output from a complex graph */
+/*        if (ost->filter && !filtergraph_is_simple(ost->filter->graph)) {
+            *//* output from a complex graph *//*
             av_log(NULL, AV_LOG_INFO, "  %s", ost->filter->name);
             if (nb_filtergraphs > 1)
                 av_log(NULL, AV_LOG_INFO, " (graph %d)", ost->filter->graph->index);
@@ -3695,7 +3698,7 @@ static int transcode_init(void)
             av_log(NULL, AV_LOG_INFO, " -> Stream #%d:%d (%s)\n", ost->file_index,
                    ost->index, ost->enc ? ost->enc->name : "?");
             continue;
-        }
+        }*/
 
         av_log(NULL, AV_LOG_INFO, "  Stream #%d:%d -> #%d:%d",
                input_streams[ost->source_index]->file_index,
@@ -4470,7 +4473,7 @@ static int transcode_step(void)
         return AVERROR_EOF;
     }
 
-    if (ost->filter && !ost->filter->graph->graph) {
+/*    if (ost->filter && !ost->filter->graph->graph) {
         if (ifilter_has_all_input_formats(ost->filter->graph)) {
             ret = configure_filtergraph(ost->filter->graph);
             if (ret < 0) {
@@ -4478,7 +4481,7 @@ static int transcode_step(void)
                 return ret;
             }
         }
-    }
+    }*/
 
     if (ost->filter && ost->filter->graph->graph) {
         if ((ret = transcode_from_filter(ost->filter->graph, &ist)) < 0)

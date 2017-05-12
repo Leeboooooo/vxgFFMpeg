@@ -31,22 +31,22 @@
 
 #include "cmdutils.h"
 
-#include "../libavformat/avformat.h"
-#include "../libavformat/avio.h"
+#include <libavformat/avformat.h>
+#include <libavformat/avio.h>
 
-#include "../libavcodec/avcodec.h"
+#include <libavcodec/avcodec.h>
 
-#include "../libavfilter/avfilter.h"
+#include <libavfilter/avfilter.h>
 
-#include "../libavutil/avutil.h"
-#include "../libavutil/dict.h"
-#include "../libavutil/eval.h"
-#include "../libavutil/fifo.h"
-#include "../libavutil/pixfmt.h"
-#include "../libavutil/rational.h"
-#include "../libavutil/threadmessage.h"
+#include <libavutil/avutil.h>
+#include <libavutil/dict.h>
+#include <libavutil/eval.h>
+#include <libavutil/fifo.h>
+#include <libavutil/pixfmt.h>
+#include <libavutil/rational.h>
+#include <libavutil/threadmessage.h>
 
-#include "../libswresample/swresample.h"
+#include <libswresample/swresample.h>
 
 #define VSYNC_AUTO       -1
 #define VSYNC_PASSTHROUGH 0
@@ -657,6 +657,6 @@ int qsv_init(AVCodecContext *s);
 int vaapi_decode_init(AVCodecContext *avctx);
 int vaapi_device_init(const char *device);
 int cuvid_init(AVCodecContext *s);
-/*int run(int argc, char **argv);*/
+int ffmpeg_cmd(int argc, char **argv);
 
 #endif /* FFMPEG_H */

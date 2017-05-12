@@ -25,10 +25,10 @@
 #include <stdint.h>
 
 #include "arm_config.h"
-#include "../libavcodec/avcodec.h"
-#include "../libavfilter/avfilter.h"
-#include "../libavformat/avformat.h"
-#include "../libswscale/swscale.h"
+#include <libavcodec/avcodec.h>
+#include <libavfilter/avfilter.h>
+#include <libavformat/avformat.h>
+#include <libswscale/swscale.h>
 
 #ifdef _WIN32
 #undef main /* We don't want SDL to override our main() */
@@ -210,7 +210,7 @@ void show_help_options(const OptionDef *options, const char *msg, int req_flags,
  * Show help for all options with given flags in class and all its
  * children.
  */
-void show_help_children(const AVClass *class,int flags);
+void show_help_children(const AVClass *,int);
 
 /**
  * Per-fftool specific help handler. Implemented in each
