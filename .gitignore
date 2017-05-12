@@ -41,3 +41,4 @@ MBlog/mBlogNigeria/BuglyUploadLog.txt
 
 #setting 
 *.settings/
+.project
