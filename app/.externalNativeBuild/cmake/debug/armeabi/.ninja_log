@@ -1,7 +1,0 @@
-# ninja log v5
-1	193	0	CMakeFiles/native-lib.dir/src/main/cpp/native-lib.cpp.o	b0de87639d236d2f
-193	306	0	../../../../build/intermediates/cmake/debug/obj/armeabi/libnative-lib.so	c2f54ea31291c0d9
-4	129	0	CMakeFiles/mbff.dir/src/main/cpp/mb_ffmpeg/src/mb_ff.cpp.o	219d9db82963db51
-1	335	0	CMakeFiles/mbff.dir/src/main/cpp/mb_ffmpeg/src/cmdutils.c.o	e86ea0fb5ed31890
-2	510	0	CMakeFiles/mbff.dir/src/main/cpp/mb_ffmpeg/src/ffmpeg_opt.c.o	14ae7506b886713b
-6	728	0	CMakeFiles/mbff.dir/src/main/cpp/mb_ffmpeg/src/ffmpeg.c.o	d247a484b52d7b4c
