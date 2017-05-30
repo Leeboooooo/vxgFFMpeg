@@ -9,13 +9,17 @@
 #include <comm/ffmpeg.h>
 
 #define __bg_9s ("bg_9s.mp3")
-
-//int ffmpeg_cmd(int argc, char **argv);
+int parse_run(JNIEnv *env,jobjectArray cmds);
+int ffmpeg_cmd(int argc, char **argv);
 
 int run_cmd(char * str_cmd){
     int argc = 1;
     char * argv[argc];
     argv[0] = str_cmd;
+    return ffmpeg_cmd(argc,argv);
+}
+
+int run(int argc,char **argv){
     return ffmpeg_cmd(argc,argv);
 }
 
@@ -49,4 +53,37 @@ Java_com_example_vxg_vxgffmpeg_FFMpegUtils_merge(
     const char *str_dst_mbg_path = (const char *)(*env)->GetStringUTFChars(env,dstBGMPath,0);
 
     return merge_voice(str_video_file,str_bg_file,str_dest,str_dst_mbg_path);
+}
+
+/*
+ * Class:     com_example_vxg_vxgffmpeg_FFMpegUtils
+ * Method:    crop_background_music
+ * Signature: ([Ljava/lang/String;)I
+ */
+JNIEXPORT jint JNICALL Java_com_example_vxg_vxgffmpeg_FFMpegUtils_crop_1background_1music
+        (JNIEnv *env, jobject jobject, jobjectArray cmds){
+    int argc = (*env)->GetArrayLength(env,cmds);
+    char *argv[argc];
+    for (int i = 0; i < argc; ++i) {
+        jstring js = (jstring) (*env)->GetObjectArrayElement(env, cmds, i);
+        argv[i] = (char *) (*env)->GetStringUTFChars(env, js, 0);
+    }
+    return run(argc,argv);
+}
+
+JNIEXPORT jint JNICALL
+Java_com_example_vxg_vxgffmpeg_FFMpegUtils_remove_1bgm_1from_1video(JNIEnv *env,
+                                                                    jobject jobject,
+                                                                    jobjectArray cmds){
+    return parse_run(env,cmds);
+}
+
+int parse_run(JNIEnv *env,jobjectArray cmds){
+    int argc = (*env)->GetArrayLength(env,cmds);
+    char *argv[argc];
+    for (int i = 0; i < argc; ++i) {
+        jstring js = (jstring) (*env)->GetObjectArrayElement(env, cmds, i);
+        argv[i] = (char *) (*env)->GetStringUTFChars(env, js, 0);
+    }
+    return run(argc,argv);
 }

@@ -24,46 +24,45 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <math.h>
-#include <comm/cmdutils.h>
 
 /* Include only the enabled headers since some compilers (namely, Sun
    Studio) will not omit unused inline functions and create undefined
    references to libraries that are not being built. */
 
-//#include "compat/va_copy.h>
-#include <libavformat/avformat.h>
-#include <libavfilter/avfilter.h>
-//#include "libavdevice/avdevice.h>
-//#include "libavresample/avresample.h>
-#include <libswscale/swscale.h>
-#include <libswresample/swresample.h>
-//#include "libpostproc/postprocess.h>
-#include <libavutil/avassert.h>
-#include <libavutil/avstring.h>
-#include <libavutil/bprint.h>
-#include <libavutil/display.h>
-#include <libavutil/mathematics.h>
-#include <libavutil/imgutils.h>
-//#include "libavutil/libm.h>
-#include <libavutil/parseutils.h>
-#include <libavutil/pixdesc.h>
-#include <libavutil/eval.h>
-#include <libavutil/dict.h>
-#include <libavutil/opt.h>
-#include <libavutil/cpu.h>
-#include <libavutil/ffversion.h>
-#include <libavutil/version.h>
+#include "comm/arm_config.h"
+//#include "compat/va_copy.h"
+#include "libavformat/avformat.h"
+#include "libavfilter/avfilter.h"
+//#include "libavdevice/avdevice.h"
+//#include "libavresample/avresample.h"
+#include "libswscale/swscale.h"
+#include "libswresample/swresample.h"
+//#include "libpostproc/postprocess.h"
+#include "libavutil/avassert.h"
+#include "libavutil/avstring.h"
+#include "libavutil/bprint.h"
+#include "libavutil/display.h"
+#include "libavutil/mathematics.h"
+#include "libavutil/imgutils.h"
+#include "libavutil/libm.h"
+#include "libavutil/parseutils.h"
+#include "libavutil/pixdesc.h"
+#include "libavutil/eval.h"
+#include "libavutil/dict.h"
+#include "libavutil/opt.h"
+#include "libavutil/cpu.h"
+#include "libavutil/ffversion.h"
+#include "libavutil/version.h"
+#include "comm/cmdutils.h"
+#if CONFIG_NETWORK
+#include "libavformat/network.h"
+#endif
 #if HAVE_SYS_RESOURCE_H
 #include <sys/time.h>
 #include <sys/resource.h>
 #endif
-#ifdef _WIN32
+#if HAVE_SETDLLDIRECTORY
 #include <windows.h>
-#endif
-
-#ifdef FFMPEG_RUN_LIB
-#include <setjmp.h>
-extern jmp_buf jmp_exit;
 #endif
 
 static int init_report(const char *env);
@@ -75,12 +74,6 @@ AVDictionary *format_opts, *codec_opts, *resample_opts;
 static FILE *report_file;
 static int report_file_level = AV_LOG_DEBUG;
 int hide_banner = 0;
-
-enum show_muxdemuxers {
-    SHOW_DEFAULT,
-    SHOW_DEMUXERS,
-    SHOW_MUXERS,
-};
 
 void init_opts(void)
 {
@@ -119,7 +112,7 @@ static void log_callback_report(void *ptr, int level, const char *fmt, va_list v
 
 void init_dynload(void)
 {
-#ifdef _WIN32
+#if HAVE_SETDLLDIRECTORY
     /* Calling SetDllDirectory with the empty string (but not NULL) removes the
      * current working directory from the DLL search path as a security pre-caution. */
     SetDllDirectory("");
@@ -133,17 +126,13 @@ void register_exit(void (*cb)(int ret))
     program_exit = cb;
 }
 
-void exit_program(int ret)
+int exit_program(int ret)
 {
-    if (program_exit)
+/*    if (program_exit)
         program_exit(ret);
 
-#ifdef FFMPEG_RUN_LIB
-    av_log(NULL, AV_LOG_INFO, "exit_program code : %d\n", ret);
-    longjmp(jmp_exit, ret);
-#else
-    exit(ret);
-#endif
+    exit(ret);*/
+    return ret;
 }
 
 double parse_number_or_die(const char *context, const char *numstr, int type,
@@ -237,6 +226,7 @@ static const OptionDef *find_option(const OptionDef *po, const char *name)
  * by default. HAVE_COMMANDLINETOARGVW is true on cygwin, while
  * it doesn't provide the actual command line via GetCommandLineW(). */
 #if HAVE_COMMANDLINETOARGVW && defined(_WIN32)
+#include <windows.h>
 #include <shellapi.h>
 /* Will be leaked on exit */
 static char** win32_argv_utf8 = NULL;
@@ -1262,7 +1252,7 @@ static int is_device(const AVClass *avclass)
     return AV_IS_INPUT_DEVICE(avclass->category) || AV_IS_OUTPUT_DEVICE(avclass->category);
 }
 
-static int show_formats_devices(void *optctx, const char *opt, const char *arg, int device_only, int muxdemuxers)
+static int show_formats_devices(void *optctx, const char *opt, const char *arg, int device_only)
 {
     AVInputFormat *ifmt  = NULL;
     AVOutputFormat *ofmt = NULL;
@@ -1280,33 +1270,29 @@ static int show_formats_devices(void *optctx, const char *opt, const char *arg, 
         const char *name      = NULL;
         const char *long_name = NULL;
 
-        if (muxdemuxers !=SHOW_DEMUXERS) {
-            while ((ofmt = av_oformat_next(ofmt))) {
-                is_dev = is_device(ofmt->priv_class);
-                if (!is_dev && device_only)
-                    continue;
-                if ((!name || strcmp(ofmt->name, name) < 0) &&
-                    strcmp(ofmt->name, last_name) > 0) {
-                    name      = ofmt->name;
-                    long_name = ofmt->long_name;
-                    encode    = 1;
-                }
+        while ((ofmt = av_oformat_next(ofmt))) {
+            is_dev = is_device(ofmt->priv_class);
+            if (!is_dev && device_only)
+                continue;
+            if ((!name || strcmp(ofmt->name, name) < 0) &&
+                strcmp(ofmt->name, last_name) > 0) {
+                name      = ofmt->name;
+                long_name = ofmt->long_name;
+                encode    = 1;
             }
         }
-        if (muxdemuxers != SHOW_MUXERS) {
-            while ((ifmt = av_iformat_next(ifmt))) {
-                is_dev = is_device(ifmt->priv_class);
-                if (!is_dev && device_only)
-                    continue;
-                if ((!name || strcmp(ifmt->name, name) < 0) &&
-                    strcmp(ifmt->name, last_name) > 0) {
-                    name      = ifmt->name;
-                    long_name = ifmt->long_name;
-                    encode    = 0;
-                }
-                if (name && strcmp(ifmt->name, name) == 0)
-                    decode = 1;
+        while ((ifmt = av_iformat_next(ifmt))) {
+            is_dev = is_device(ifmt->priv_class);
+            if (!is_dev && device_only)
+                continue;
+            if ((!name || strcmp(ifmt->name, name) < 0) &&
+                strcmp(ifmt->name, last_name) > 0) {
+                name      = ifmt->name;
+                long_name = ifmt->long_name;
+                encode    = 0;
             }
+            if (name && strcmp(ifmt->name, name) == 0)
+                decode = 1;
         }
         if (!name)
             break;
@@ -1323,22 +1309,12 @@ static int show_formats_devices(void *optctx, const char *opt, const char *arg, 
 
 int show_formats(void *optctx, const char *opt, const char *arg)
 {
-    return show_formats_devices(optctx, opt, arg, 0, SHOW_DEFAULT);
-}
-
-int show_muxers(void *optctx, const char *opt, const char *arg)
-{
-    return show_formats_devices(optctx, opt, arg, 0, SHOW_MUXERS);
-}
-
-int show_demuxers(void *optctx, const char *opt, const char *arg)
-{
-    return show_formats_devices(optctx, opt, arg, 0, SHOW_DEMUXERS);
+    return show_formats_devices(optctx, opt, arg, 0);
 }
 
 int show_devices(void *optctx, const char *opt, const char *arg)
 {
-    return show_formats_devices(optctx, opt, arg, 1, SHOW_DEFAULT);
+    return show_formats_devices(optctx, opt, arg, 1);
 }
 
 #define PRINT_CODEC_SUPPORTED(codec, field, type, list_name, term, get_name) \
@@ -1604,11 +1580,10 @@ int show_encoders(void *optctx, const char *opt, const char *arg)
 
 int show_bsfs(void *optctx, const char *opt, const char *arg)
 {
-    const AVBitStreamFilter *bsf = NULL;
-    void *opaque = NULL;
+    AVBitStreamFilter *bsf = NULL;
 
     printf("Bitstream filters:\n");
-    while ((bsf = av_bsf_next(&opaque)))
+    while ((bsf = av_bitstream_filter_next(bsf)))
         printf("%s\n", bsf->name);
     printf("\n");
     return 0;
@@ -2019,7 +1994,7 @@ AVDictionary *filter_codec_opts(AVDictionary *opts, enum AVCodecID codec_id,
         codec            = s->oformat ? avcodec_find_encoder(codec_id)
                                       : avcodec_find_decoder(codec_id);
 
-    switch (st->codecpar->codec_type) {
+    switch (st->codec->codec_type) {
     case AVMEDIA_TYPE_VIDEO:
         prefix  = 'v';
         flags  |= AV_OPT_FLAG_VIDEO_PARAM;
@@ -2077,7 +2052,7 @@ AVDictionary **setup_find_stream_info_opts(AVFormatContext *s,
         return NULL;
     }
     for (i = 0; i < s->nb_streams; i++)
-        opts[i] = filter_codec_opts(codec_opts, s->streams[i]->codecpar->codec_id,
+        opts[i] = filter_codec_opts(codec_opts, s->streams[i]->codec->codec_id,
                                     s, s->streams[i], NULL);
     return opts;
 }
@@ -2103,10 +2078,18 @@ void *grow_array(void *array, int elem_size, int *size, int new_size)
 
 double get_rotation(AVStream *st)
 {
+    AVDictionaryEntry *rotate_tag = av_dict_get(st->metadata, "rotate", NULL, 0);
     uint8_t* displaymatrix = av_stream_get_side_data(st,
                                                      AV_PKT_DATA_DISPLAYMATRIX, NULL);
     double theta = 0;
-    if (displaymatrix)
+
+    if (rotate_tag && *rotate_tag->value && strcmp(rotate_tag->value, "0")) {
+        char *tail;
+        theta = av_strtod(rotate_tag->value, &tail);
+        if (*tail)
+            theta = 0;
+    }
+    if (displaymatrix && !theta)
         theta = -av_display_rotation_get((int32_t*) displaymatrix);
 
     theta -= 360*floor(theta/360 + 0.9/360);

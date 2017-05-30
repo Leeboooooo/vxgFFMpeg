@@ -8,12 +8,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
     private ProgressBar loading;
     private String APP_DIR;
+    private TextView tvShow;
 
     // 成功
     private static final int WHAT_SUCCESS = 1;
@@ -27,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // Example of a call to a native method
-        TextView tv = (TextView) findViewById(R.id.sample_text);
+        tvShow = (TextView) findViewById(R.id.sample_text);
         loading = (ProgressBar) findViewById(R.id.loadding);
 
         APP_DIR = Environment.getExternalStorageDirectory().toString() + "/JNITest/";
@@ -40,8 +41,10 @@ public class MainActivity extends AppCompatActivity {
             super.handleMessage(msg);
             switch (msg.what){
                 case WHAT_SUCCESS:
+                    tvShow.setText("Successed.");
                     break;
                 case WHAT_FAIL:
+                    tvShow.setText("Failed.");
                     break;
                 default:
                     break;
@@ -51,20 +54,82 @@ public class MainActivity extends AppCompatActivity {
 
     public void mergeVideo(View view){
         loading.setVisibility(View.VISIBLE);
-        new MergeTask().execute();
+        new Crop9sBGMTask().execute();
     }
 
-    public class MergeTask extends AsyncTask<String,Void,Integer>{
+    public void removeBGM(View view){
+        loading.setVisibility(View.VISIBLE);
+        new RemoveBGMTask().execute();
+    }
+
+    /**
+     * 剪裁九秒短视频
+     */
+    public class Crop9sBGMTask extends AsyncTask<String,Void,Integer>{
 
         @Override
         protected Integer doInBackground(String... params) {
             String srcVideo = APP_DIR + "src.mp4";
             String bgMusicFile = APP_DIR + "test.mp3";
             String destPath = APP_DIR + "dest.mp4";
-            int ret = FFMpegUtils.getInstance().merge(srcVideo,bgMusicFile,destPath,APP_DIR);
+//            int ret = FFMpegUtils.getInstance().merge(srcVideo,bgMusicFile,destPath,APP_DIR);
+            boolean isExist = FFMpegUtils.dirIsExist(APP_DIR);
+            isExist = FFMpegUtils.dirIsExist(bgMusicFile);
+            int ret = FFMpegUtils.getInstance().crop_backgroud_music(bgMusicFile,APP_DIR);
             if (1 == ret) {
                 handler.obtainMessage(WHAT_SUCCESS).sendToTarget();
             }
+            return WHAT_SUCCESS;
+        }
+
+        @Override
+        protected void onPostExecute(Integer integer) {
+            super.onPostExecute(integer);
+            loading.setVisibility(View.GONE);
+        }
+    }
+
+    /**
+     * 合并音视频
+     */
+    public class MergeVideoAndBGMTask extends AsyncTask<String,Void,Integer>{
+
+        @Override
+        protected Integer doInBackground(String... params) {
+            String srcVideo = APP_DIR + "src.mp4";
+            String bgMusicFile = APP_DIR + "test.mp3";
+            String destPath = APP_DIR + "dest.mp4";
+            boolean isExist = FFMpegUtils.dirIsExist(APP_DIR);
+            isExist = FFMpegUtils.dirIsExist(bgMusicFile);
+            int ret = FFMpegUtils.getInstance().crop_backgroud_music(bgMusicFile,APP_DIR);
+            if (1 == ret) {
+                handler.obtainMessage(WHAT_SUCCESS).sendToTarget();
+            }
+            return WHAT_SUCCESS;
+        }
+
+        @Override
+        protected void onPostExecute(Integer integer) {
+            super.onPostExecute(integer);
+            loading.setVisibility(View.GONE);
+        }
+    }
+
+    /**
+     * 移除背景音乐
+     */
+    public class RemoveBGMTask extends AsyncTask<String,Void,Integer>{
+
+        @Override
+        protected Integer doInBackground(String... params) {
+            String src = APP_DIR + "src.mp4";
+            String dest = APP_DIR + "dest.mp4";
+            boolean isExist = FFMpegUtils.dirIsExist(APP_DIR);
+            isExist = FFMpegUtils.dirIsExist(src);
+            if (!isExist) return WHAT_FAIL;
+            int ret = FFMpegUtils.getInstance().remove_bgm_from_video(src,dest);
+            if (ret < 0) return WHAT_FAIL;
+            handler.obtainMessage(WHAT_SUCCESS).sendToTarget();
             return WHAT_SUCCESS;
         }
 

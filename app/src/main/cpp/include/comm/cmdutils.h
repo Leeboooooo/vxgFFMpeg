@@ -25,10 +25,10 @@
 #include <stdint.h>
 
 #include "arm_config.h"
-#include <libavcodec/avcodec.h>
-#include <libavfilter/avfilter.h>
-#include <libavformat/avformat.h>
-#include <libswscale/swscale.h>
+#include "libavcodec/avcodec.h"
+#include "libavfilter/avfilter.h"
+#include "libavformat/avformat.h"
+#include "libswscale/swscale.h"
 
 #ifdef _WIN32
 #undef main /* We don't want SDL to override our main() */
@@ -59,8 +59,8 @@ void register_exit(void (*cb)(int ret));
 /**
  * Wraps exit with a program-specific cleanup routine.
  */
-void exit_program(int ret) av_noreturn;
-
+//void exit_program(int ret) av_noreturn;
+int exit_program(int ret);
 /**
  * Initialize dynamic library loading
  */
@@ -210,7 +210,7 @@ void show_help_options(const OptionDef *options, const char *msg, int req_flags,
  * Show help for all options with given flags in class and all its
  * children.
  */
-void show_help_children(const AVClass *,int);
+void show_help_children(const AVClass *class, int flags);
 
 /**
  * Per-fftool specific help handler. Implemented in each
@@ -440,20 +440,6 @@ int show_license(void *optctx, const char *opt, const char *arg);
  * This option processing function does not utilize the arguments.
  */
 int show_formats(void *optctx, const char *opt, const char *arg);
-
-/**
- * Print a listing containing all the muxers supported by the
- * program (including devices).
- * This option processing function does not utilize the arguments.
- */
-int show_muxers(void *optctx, const char *opt, const char *arg);
-
-/**
- * Print a listing containing all the demuxer supported by the
- * program (including devices).
- * This option processing function does not utilize the arguments.
- */
-int show_demuxers(void *optctx, const char *opt, const char *arg);
 
 /**
  * Print a listing containing all the devices supported by the

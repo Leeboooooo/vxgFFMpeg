@@ -7,12 +7,31 @@
     tools:context="com.example.vxg.vxgffmpeg.MainActivity">
     
     <Button
+        android:id="@+id/crop_bgm"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         android:text="。。。-------合并背景音乐-------。。。"
         android:onClick="mergeVideo"/>
+
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="358dp"
+        android:layout_height="46dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
+        android:onClick="removeBGM"
+        android:text="。。。-------移除背景音乐-------。。。"
+        app:layout_constraintBottom_toTopOf="@+id/loadding"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/crop_bgm"
+        app:layout_constraintVertical_bias="0.166" />
 
     <TextView
         android:id="@+id/sample_text"
