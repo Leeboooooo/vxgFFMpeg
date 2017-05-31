@@ -20,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int WHAT_SUCCESS = 1;
     // 失败
     private static final int WHAT_FAIL = 0;
+    private static final int WHAT_FAIL_NOT_EXIST = 2;
 
 
     @Override
@@ -46,13 +47,16 @@ public class MainActivity extends AppCompatActivity {
                 case WHAT_FAIL:
                     tvShow.setText("Failed.");
                     break;
+                case WHAT_FAIL_NOT_EXIST:
+                    tvShow.setText("源文件不存在");
+                    break;
                 default:
                     break;
             }
         }
     };
 
-    public void mergeVideo(View view){
+    public void crop(View view){
         loading.setVisibility(View.VISIBLE);
         new Crop9sBGMTask().execute();
     }
@@ -60,6 +64,11 @@ public class MainActivity extends AppCompatActivity {
     public void removeBGM(View view){
         loading.setVisibility(View.VISIBLE);
         new RemoveBGMTask().execute();
+    }
+
+    public void merge(View view){
+        loading.setVisibility(View.VISIBLE);
+        new MergeVideoAndBGMTask().execute();
     }
 
     /**
@@ -72,7 +81,6 @@ public class MainActivity extends AppCompatActivity {
             String srcVideo = APP_DIR + "src.mp4";
             String bgMusicFile = APP_DIR + "test.mp3";
             String destPath = APP_DIR + "dest.mp4";
-//            int ret = FFMpegUtils.getInstance().merge(srcVideo,bgMusicFile,destPath,APP_DIR);
             boolean isExist = FFMpegUtils.dirIsExist(APP_DIR);
             isExist = FFMpegUtils.dirIsExist(bgMusicFile);
             int ret = FFMpegUtils.getInstance().crop_backgroud_music(bgMusicFile,APP_DIR);
@@ -97,14 +105,15 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected Integer doInBackground(String... params) {
             String srcVideo = APP_DIR + "src.mp4";
-            String bgMusicFile = APP_DIR + "test.mp3";
+            String bgMusicFile = APP_DIR + "9s.mp3";
             String destPath = APP_DIR + "dest.mp4";
-            boolean isExist = FFMpegUtils.dirIsExist(APP_DIR);
+            boolean isExist = FFMpegUtils.dirIsExist(srcVideo);
+            if (!isExist) return WHAT_FAIL_NOT_EXIST;
             isExist = FFMpegUtils.dirIsExist(bgMusicFile);
-            int ret = FFMpegUtils.getInstance().crop_backgroud_music(bgMusicFile,APP_DIR);
-            if (1 == ret) {
-                handler.obtainMessage(WHAT_SUCCESS).sendToTarget();
-            }
+            if (!isExist) return WHAT_FAIL_NOT_EXIST;
+            int ret = FFMpegUtils.getInstance().merge(srcVideo,bgMusicFile,destPath);
+            if (ret < 0) return WHAT_FAIL;
+            handler.obtainMessage(WHAT_SUCCESS).sendToTarget();
             return WHAT_SUCCESS;
         }
 

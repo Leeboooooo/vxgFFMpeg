@@ -52,16 +52,28 @@ public class FFMpegUtils {
         return remove_bgm_from_video(commonds);
     }
 
+    public int merge(String srcVideo,String srcBGM,String dst){
+        String [] commonds = new String[10];
+        commonds[0] = "ffmpeg";
+        commonds[1] = "-i";
+        commonds[2] = srcVideo;
+        commonds[3] = "-i";
+        commonds[4] = srcBGM;
+        commonds[5] = "-vcodec";
+        commonds[6] = "copy";
+        commonds[7] = "-acodec";
+        commonds[8] = "copy";
+        commonds[9] = dst + "bg_9s.mp4";
+        return merge(commonds);
+    }
+
     public int merge_bgm_to_video(String srcBGM,String srcVideo,String dstVideo){
         return 1;
     }
 
     public native int crop_background_music(String []commonds);
 
-    public native int merge(String srcVideo,
-                            String srcBGM,
-                            String dstVideo,
-                            String dstBGMPath);
+    public native int merge(String []commonds);
 
     public native int remove_bgm_from_video(String []commonds);
 }

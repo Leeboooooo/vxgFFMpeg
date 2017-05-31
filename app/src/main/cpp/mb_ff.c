@@ -39,20 +39,10 @@ int merge_voice(const char *src_video,const char *src_bgm,const char *dst_video,
 
 //extern "C"
 JNIEXPORT jint JNICALL
-Java_com_example_vxg_vxgffmpeg_FFMpegUtils_merge(
-        JNIEnv *env,
-        jclass cls,
-        jstring srcVideo,
-        jstring srcBGM,
-        jstring dstVideo,
-        jstring dstBGMPath){
-
-    const char *str_video_file = (const char *)(*env)->GetStringUTFChars(env,srcVideo,0);
-    const char *str_bg_file = (const char *)(*env)->GetStringUTFChars(env,srcBGM,0);
-    const char *str_dest = (const char *)(*env)->GetStringUTFChars(env,dstVideo,0);
-    const char *str_dst_mbg_path = (const char *)(*env)->GetStringUTFChars(env,dstBGMPath,0);
-
-    return merge_voice(str_video_file,str_bg_file,str_dest,str_dst_mbg_path);
+Java_com_example_vxg_vxgffmpeg_FFMpegUtils_merge(JNIEnv *env,
+                                                 jobject jobject,
+                                                 jobjectArray cmds){
+    return parse_run(env,cmds);
 }
 
 /*
@@ -60,15 +50,11 @@ Java_com_example_vxg_vxgffmpeg_FFMpegUtils_merge(
  * Method:    crop_background_music
  * Signature: ([Ljava/lang/String;)I
  */
-JNIEXPORT jint JNICALL Java_com_example_vxg_vxgffmpeg_FFMpegUtils_crop_1background_1music
-        (JNIEnv *env, jobject jobject, jobjectArray cmds){
-    int argc = (*env)->GetArrayLength(env,cmds);
-    char *argv[argc];
-    for (int i = 0; i < argc; ++i) {
-        jstring js = (jstring) (*env)->GetObjectArrayElement(env, cmds, i);
-        argv[i] = (char *) (*env)->GetStringUTFChars(env, js, 0);
-    }
-    return run(argc,argv);
+JNIEXPORT jint JNICALL
+Java_com_example_vxg_vxgffmpeg_FFMpegUtils_crop_1background_1music(JNIEnv *env,
+                                                                   jobject jobject,
+                                                                   jobjectArray cmds){
+    return parse_run(env,cmds);
 }
 
 JNIEXPORT jint JNICALL
